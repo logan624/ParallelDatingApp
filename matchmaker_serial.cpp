@@ -1,3 +1,9 @@
+// Program: Matchmaker (Serial)
+// Authors: Hitomi Ichwan and Logan Gregg
+// Description:
+//       Dating app simulation using the Map-Reduction algorithm from the
+//       Drug Design Exemplar
+
 #include <iostream>
 #include <vector>
 #include <algorithm>
@@ -12,11 +18,10 @@
 using namespace std;
 
 // Constants
-const int NUM_PROFILES = 20;
+const int NUM_PROFILES = 200;
 
 // Profile structure
 struct Profile {
-    int id;
     string name;
     double politicalView;
     double politicalImportance; // Importance factor for political view
@@ -32,26 +37,23 @@ struct Profile {
           monogamous(m), monogamousImportance(mImp), seriousDating(sd), seriousDatingImportance(sdImp) {}
 
     Profile()
-        : id(0), name(""), politicalView(0.0), politicalImportance(0.0), childrenPreference(0.0), childrenImportance(0.0),
+        : name(""), politicalView(0.0), politicalImportance(0.0), childrenPreference(0.0), childrenImportance(0.0),
           monogamous(0.0), monogamousImportance(0.0), seriousDating(0.0), seriousDatingImportance(0.0) {}
 };
 
-// Enumeration types to describe users' dating preferences
-enum PoliticalViewType {
-    LIBERAL = 1, MODERATE, CONSERVATIVE
-};
-
-enum ChildrenPreferenceType {
-    KIDS = 1, NO_KIDS, UNDECIDED
-};
-
-enum MonogamousType {
-    MONOGAMOUS = 1, POLYAMOROUS
-};
-
-enum SeriousDatingType {
-    SERIOUS = 1, CASUAL
-};
+// Documentation: Enumeration types to describe possible values for users' dating preferences
+    // enum PoliticalViewType {
+    //     LIBERAL = 1, MODERATE, CONSERVATIVE
+    // };
+    // enum ChildrenPreferenceType {
+    //     KIDS = 1, NO_KIDS, UNDECIDED
+    // };
+    // enum MonogamousType {
+    //     MONOGAMOUS = 1, POLYAMOROUS
+    // };
+    // enum SeriousDatingType {
+    //     SERIOUS = 1, CASUAL
+    // };
 
 // Pair structure for map-reduce
 struct Pair {
@@ -99,16 +101,19 @@ bool compare(const Pair &p1, const Pair &p2);
 
 int main() {
     // User's profile
-    string name;
-    double politicalView, childrenPreference, monogamous, seriousDating;
+    string name = "Logan";
+    double politicalView = 1, childrenPreference = 1, monogamous = 1, seriousDating = 1;
 
     Profile user(name, politicalView, 0.0, childrenPreference, 0.0, monogamous, 0.0, seriousDating, 0.0);
 
-    getUserData(user);
+    // Uncomment to manually enter profile data if desired
+    // getUserData(user);
 
     // Generate profiles for the user to match with
     potential_matches = generateProfiles(NUM_PROFILES);
 
+    cout << "\nPotential Matches:\n";
+    cout << "------------------------------\n";
     for (const auto &match : potential_matches) {
         cout << match.name << std::endl;
     }
@@ -118,23 +123,14 @@ int main() {
     vector<Pair> results = map_reduce.run(user);
 
     // Display potential matches
-    cout << "\nPotential matches:\n";
+    cout << "\nBest Matches:\n";
+    cout << "------------------------------\n";
 
     if (results.empty()) {
         cout << "No potential matches found.\n";
     } else {
         for (const auto &result : results) {
             cout << result.val << "\n";
-            cout << "  Chose Political View: " << static_cast<int>(result.politicalView)
-                 << " (Importance: " << result.politicalViewImportance << ")\n";
-            cout << "  Chose Children Preference: " << static_cast<int>(result.childrenPreference)
-                 << " (Importance: " << result.childrenPreferenceImportance << ")\n";
-            cout << "  Chose Monogamous: " << static_cast<int>(result.monogamous)
-                 << " (Importance: " << result.monogamousImportance << ")\n";
-            cout << "  Chose Serious Dating: " << static_cast<int>(result.seriousDating)
-                 << " (Importance: " << result.seriousDatingImportance << ")\n";
-            cout << "  Compatibility Score: " << fixed << setprecision(2) << result.key << "%" << "\n";
-            cout << "------------------------------\n";
         }
     }
     return 0;
@@ -229,9 +225,6 @@ std::vector<Profile> generateProfiles(int numProfiles) {
 
     for (int i = 0; i < numProfiles; ++i) {
         Profile newProfile;
-
-        // Assigning unique ID
-        newProfile.id = i + 1;
 
         // Randomly selecting a name from the common names list
         int randomIndex = rand() % commonNames.size();
